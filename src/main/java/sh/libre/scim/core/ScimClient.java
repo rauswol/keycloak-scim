@@ -152,7 +152,7 @@ public class ScimClient {
 
         adapter.apply(response.getResource());
         adapter.saveMapping();
-    };
+    }
 
     public <M extends RoleMapperModel, S extends ResourceNode, A extends Adapter<M, S>> void replace(Class<A> aClass,
             M kcModel) {
@@ -169,8 +169,8 @@ public class ScimClient {
             ServerResponse<S> response = retry.executeSupplier(() -> {
                 try {
                     LOGGER.info(adapter.getType());
-                    if ((adapter.getType() == "Group" && this.model.get("group-patchOp", false))
-                         || (adapter.getType() == "User" && this.model.get("user-patchOp", false))) {
+                    if (("Group".equals(adapter.getType()) && this.model.get("group-patchOp", false))
+                         || ("User".equals(adapter.getType()) && this.model.get("user-patchOp", false))) {
                         return adapter.toPatchBuilder(scimRequestBuilder, url)
                                       .sendRequest();
                     }
