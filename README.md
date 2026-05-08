@@ -2,6 +2,9 @@
 
 This extension add [SCIM2](http://www.simplecloud.info) client capabilities to Keycloak. (See [RFC7643](https://datatracker.ietf.org/doc/html/rfc7643) and [RFC7644](https://datatracker.ietf.org/doc/html/rfc7644)).
 
+>[!IMPORTANT]
+This adapter synchronizes users, groups, and roles. However, for each user, only the roles are synchronized, not the groups!
+
 ## Overview
 
 ### Motivation
