@@ -1,12 +1,13 @@
 # keycloak-scim-client
 
->[!IMPORTANT]
-This extension synchronizes users, groups, and roles. However, for each user, only the roles are synchronized, not the groups!
-
 This extension add [SCIM2](http://www.simplecloud.info) client capabilities to Keycloak. (See [RFC7643](https://datatracker.ietf.org/doc/html/rfc7643) and [RFC7644](https://datatracker.ietf.org/doc/html/rfc7644)).
 
+## Changes
+The following changes have been made to the original:
+* tested with Keycloak version 26.6.1
+* attribute 'scim==true' is NOT necessary
+
 ## Overview
-Last tested with Keycloak version 26.6.1
 
 ### Motivation
 
@@ -84,3 +85,10 @@ You can set up a periodic sync for all users or just changed users. You can eith
 
 
 **[License AGPL](/LICENSE)**
+
+## Security
+
+### Trivy
+Trivy is a All-in-One Security Scanner.
+
+A possible check via CLI is: ```trivy rootfs --scanners vuln build/libs/keycloak-scim-1.1.jar```

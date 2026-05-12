@@ -107,9 +107,9 @@ public class ScimClient {
         return session.getProvider(JpaConnectionProvider.class).getEntityManager();
     }
 
-    protected String getRealmId() {
-        return session.getContext().getRealm().getId();
-    }
+    //protected String getRealmId() {
+    //    return session.getContext().getRealm().getId();
+    //}
 
     protected <M extends RoleMapperModel, S extends ResourceNode, A extends Adapter<M, S>> A getAdapter(
             Class<A> aClass) {
@@ -129,7 +129,7 @@ public class ScimClient {
             return;
         }
         // If mapping exist then it was created by import so skip.
-        if (adapter.query("findById", adapter.getId()).getResultList().size() != 0) {
+        if (!adapter.query("findById", adapter.getId()).getResultList().isEmpty()) {
             return;
         }
         var retry = registry.retry("create-" + adapter.getId());
@@ -251,12 +251,18 @@ public class ScimClient {
 
     }
 
+    protected <M extends RoleMapperModel, S extends ResourceNode, A extends Adapter<M, S>>  String getScimEndpointUrl(A adapter) {
+        return scimApplicationBaseUrl.endsWith("/") ?
+                scimApplicationBaseUrl + adapter.getSCIMEndpoint()
+                : scimApplicationBaseUrl + "/" + adapter.getSCIMEndpoint();
+    }
+
     public <M extends RoleMapperModel, S extends ResourceNode, A extends Adapter<M, S>> void importResources(
             Class<A> aClass, SynchronizationResult syncRes) {
         LOGGER.info("Import");
         try {
             var adapter = getAdapter(aClass);
-            ServerResponse<ListResponse<S>> response  = scimRequestBuilder.list("url", adapter.getResourceClass()).get().sendRequest();
+            ServerResponse<ListResponse<S>> response  = scimRequestBuilder.list(getScimEndpointUrl(adapter), adapter.getResourceClass()).get().sendRequest();
             ListResponse<S> resourceTypeListResponse = response.getResource();
 
             for (var resource : resourceTypeListResponse.getListedResources()) {
@@ -306,7 +312,6 @@ public class ScimClient {
                     }
                 } catch (Exception e) {
                     LOGGER.error(e);
-                    e.printStackTrace();
                     syncRes.increaseFailed();
                 }
             }

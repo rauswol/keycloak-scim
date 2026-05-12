@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.UserModel;
 
 public class GroupAdapter extends Adapter<GroupModel, Group> {
 
@@ -51,7 +52,7 @@ public class GroupAdapter extends Adapter<GroupModel, Group> {
         setDisplayName(group.getName());
         this.members = session.users()
                 .getGroupMembersStream(session.getContext().getRealm(), group)
-                .map(x -> x.getId())
+                .map(UserModel::getId)
                 .collect(Collectors.toSet());
         this.skip = StringUtils.equals(group.getFirstAttribute("scim-skip"), "true");
     }
@@ -61,7 +62,7 @@ public class GroupAdapter extends Adapter<GroupModel, Group> {
         setExternalId(group.getId().get());
         setDisplayName(group.getDisplayName().get());
         var groupMembers = group.getMembers();
-        if (groupMembers != null && groupMembers.size() > 0) {
+        if (groupMembers != null && !groupMembers.isEmpty()) {
             this.members = new HashSet<String>();
             for (var groupMember : groupMembers) {
                 var userMapping = this.query("findByExternalId", groupMember.getValue().get(), "User")
@@ -77,7 +78,7 @@ public class GroupAdapter extends Adapter<GroupModel, Group> {
         group.setId(externalId);
         group.setExternalId(id);
         group.setDisplayName(displayName);
-        if (members.size() > 0) {
+        if (!members.isEmpty()) {
             var groupMembers = new ArrayList<Member>();
             for (var member : members) {
                 var groupMember = new Member();
@@ -159,7 +160,7 @@ public class GroupAdapter extends Adapter<GroupModel, Group> {
         List<Member> groupMembers = new ArrayList<>();
         PatchBuilder<Group> patchBuilder;
         patchBuilder = scimRequestBuilder.patch(url, Group.class);
-        if (members.size() > 0) {
+        if (!members.isEmpty()) {
             for (String member : members) {
                 var userMapping = this.query("findById", member, "User").getSingleResult();
                 groupMembers.add(Member.builder().value(userMapping.getExternalId()).build());
